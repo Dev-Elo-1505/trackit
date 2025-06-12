@@ -33,7 +33,7 @@ const features = [
 ]
 const Features = () => {
   return (
-    <section>
+    <section className="mb-20">
         <h1 className="text-2xl font-bold mb-5 text-center md:text-4xl">all the good stuff</h1>
         <div>{features.map(feat => (
             <div key={feat.id} className="bg-secondary p-5 rounded-lg mb-4">
