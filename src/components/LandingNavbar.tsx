@@ -1,14 +1,16 @@
+import { Link } from "react-router-dom";
+
 const NavBar = () => {
   return (
     <header className="flex justify-between items-center">
       <h1 className="text-2xl sm:text-3xl font-extrabold">trackit</h1>
       <div className="flex gap-2">
-        <button className="btn btn-login">
+        <Link className="btn btn-login" to="/auth/login">
           login
-        </button>
-        <button className="btn btn-signup">
+        </Link>
+        <Link className="btn btn-signup" to='/auth/signup'>
           signup
-        </button>
+        </Link>
       </div>
     </header>
   );
