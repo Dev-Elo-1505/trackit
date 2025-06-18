@@ -55,7 +55,7 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-4 sm:px-8 md:px-10 lg:px-16 md:py-8 lg:py-10">
-      <h1 className="text-2xl sm:text-3xl font-extrabold">trackit</h1>
+      <Link to="/" className="text-2xl sm:text-3xl font-extrabold">trackit</Link>
       <div className="md:flex flex-col items-center lg:justify-center">
         <form className="mt-10 md:w-2/3 lg:w-1/3" onSubmit={handleSubmit}>
           <h2 className="text-xl font-semibold text-center md:text-2xl">

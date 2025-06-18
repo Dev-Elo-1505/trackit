@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const NavBar = () => {
   return (
     <header className="flex justify-between items-center">
-      <h1 className="text-2xl sm:text-3xl font-extrabold">trackit</h1>
+      <Link to="/" className="text-2xl sm:text-3xl font-extrabold">trackit</Link>
       <div className="flex gap-2">
         <Link className="btn btn-login" to="/auth/login">
           login

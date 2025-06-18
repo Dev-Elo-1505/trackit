@@ -1,9 +1,26 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
+const DashboardNavBar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-const DashboardNavbar = () => {
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
-    <div>DashboardNavbar</div>
-  )
-}
+    <header className="flex justify-between items-center">
+      <Link to="/" className="text-2xl sm:text-3xl font-extrabold">
+        trackit
+      </Link>
 
-export default DashboardNavbar
+      <button className="btn btn-login" onClick={handleLogout}>
+        logout
+      </button>
+    </header>
+  );
+};
+
+export default DashboardNavBar;
