@@ -41,6 +41,7 @@ const AuthPage = () => {
       navigate("/dashboard");
     } catch (error) {
       setErrorMsg((error as Error).message);
+      
     }
   };
 
