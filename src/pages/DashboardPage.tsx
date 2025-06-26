@@ -4,6 +4,8 @@ import { FaPlus } from "react-icons/fa6";
 import Modal from "../components/Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createHabit, getHabits } from "../lib/firestore/habits";
+import CalendarGrid from "../components/CalendarGrid";
+
 
 interface Habit {
   id: string;
@@ -14,6 +16,8 @@ interface Habit {
 const DashboardPage = () => {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
+ const [habitRowCount, setHabitRowCount] = useState(0);
+
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({ habit: "", goal: "" });
@@ -43,7 +47,9 @@ const DashboardPage = () => {
       setFormData({ habit: "", goal: "" }); 
     },
   });
-  const openModal = () => setShowModal(true);
+  const openModal = () => { setShowModal(true);
+  
+  }
   const closeModal = () => setShowModal(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,6 +58,7 @@ const DashboardPage = () => {
       name: formData.habit,
       goal: Number(formData.goal),
     });
+    setHabitRowCount((prev) => prev + 1)
   };
 
   return (
@@ -117,6 +124,7 @@ const DashboardPage = () => {
           </ul>
         )}
       </div>
+      <CalendarGrid rowCount = {habitRowCount} />
     </section>
   );
 };

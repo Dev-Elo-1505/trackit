@@ -22,3 +22,11 @@ Tasks
 ✅ Show progress visually
 
 ✅ Add polish & responsiveness
+
+Use soft colors for:
+
+Missed = white/gray
+
+Done = green
+
+Today = yellow outline
