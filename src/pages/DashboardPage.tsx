@@ -7,7 +7,7 @@ import { createHabit, getHabits } from "../lib/firestore/habits";
 import CalendarGrid from "../components/CalendarGrid";
 
 
-interface Habit {
+export interface Habit {
   id: string;
   name: string;
   goal: number;
@@ -16,7 +16,7 @@ interface Habit {
 const DashboardPage = () => {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
- const [habitRowCount, setHabitRowCount] = useState(0);
+ 
 
   const queryClient = useQueryClient();
 
@@ -58,7 +58,7 @@ const DashboardPage = () => {
       name: formData.habit,
       goal: Number(formData.goal),
     });
-    setHabitRowCount((prev) => prev + 1)
+   
   };
 
   return (
@@ -110,21 +110,7 @@ const DashboardPage = () => {
       >Save</button>
         </form>
       </Modal>
-      {/* Display habits */}
-      <div className="mt-10">
-        {isLoading ? (
-          <p>Loading habits...</p>
-        ) : (
-          <ul>
-            {habits.map((habit: Habit) => (
-              <li key={habit.id}>
-                {habit.name} - Goal: {habit.goal} days
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <CalendarGrid rowCount = {habitRowCount} />
+      {!isLoading && <CalendarGrid habits={habits} />}
     </section>
   );
 };

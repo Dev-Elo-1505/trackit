@@ -1,15 +1,14 @@
-// clicking add habit button should add an empty row to the table
-
 import { useState } from "react";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import { format, getMonth, getYear } from "date-fns";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import type { Habit } from "../pages/DashboardPage";
 
 interface CalendarGridProps {
-  rowCount: number;
+  habits: Habit[]
 }
 
-const CalendarGrid = ({rowCount}: CalendarGridProps) => {
+const CalendarGrid = ({habits}: CalendarGridProps) => {
   const today = new Date();
   const [month, setMonth] = useState(getMonth(today));
   const [year, setYear] = useState(getYear(today));
@@ -50,15 +49,20 @@ const CalendarGrid = ({rowCount}: CalendarGridProps) => {
         <table className="w-full text-sm border border-gray-300">
           <thead>
           <tr>
+            <th rowSpan={2} colSpan={3}className="text-center py-2 sticky left-0 bg-white z-10 px-12 border border-gray-300">Habits</th>
             {daysInMonth.map((date) => (
               <td key={date.toISOString()} className="p-2 border border-gray-300 ">
                 <div className="text-center w-5">
                   {format(date, "EEE").charAt(0)}
                 </div>
+                
               </td>
             ))}
+            <th rowSpan={2} className="text-center py-2 px-6 border border-gray-300">Goal</th>
+            <th rowSpan={2}className="text-center py-2 px-6 border border-gray-300">Achieved</th>
           </tr>
           <tr>
+            
             {daysInMonth.map((date) => (
               <td key={date.toISOString()} className="p-2 border border-gray-300">
                 <div className="text-center">
@@ -69,13 +73,19 @@ const CalendarGrid = ({rowCount}: CalendarGridProps) => {
           </tr>
           </thead>
           <tbody>
-            {Array.from({length: rowCount}).map((_, rowIndex) => (
-              <tr key={rowIndex}>
+            
+            {habits.map((habit) => (
+              
+              <tr key={habit.id}>
+                <td colSpan={3}className="text-center border border-gray-300 sticky left-0 bg-white z-10">{habit.name}</td>
                 {daysInMonth.map((date)=> (
                   <td key={date.toISOString()} className="p-2 border border-gray-300">
+                    
                     <div className="h-5 w-5 mx-auto rounded cursor-pointer"></div>
                   </td>
                 ))}
+                <td className="text-center border border-gray-300">{habit.goal}</td>
+                <td className="text-center border border-gray-300">0</td>
               </tr>
                ))}
           </tbody>
