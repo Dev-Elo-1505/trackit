@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { FaPlus } from "react-icons/fa6";
 import Modal from "../components/Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createHabit, getHabits } from "../lib/firestore/habits";
+import { createHabit, getHabits, updateHabit } from "../lib/firestore/habits";
 import CalendarGrid from "../components/CalendarGrid";
 
 
@@ -11,7 +11,10 @@ export interface Habit {
   id: string;
   name: string;
   goal: number;
+  completedDates?: string[];
 }
+
+
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -47,6 +50,44 @@ const DashboardPage = () => {
       setFormData({ habit: "", goal: "" }); 
     },
   });
+
+  // Update habit
+const updateHabitMutation = useMutation({
+  mutationFn: ({ habitId, dateISO }: { habitId: string; dateISO: string }) => {
+    if (!user?.uid) throw new Error("User not authenticated");
+    return updateHabit(user.uid, habitId, dateISO);
+  },
+  onMutate: async ({ habitId, dateISO }) => {
+    await queryClient.cancelQueries({ queryKey: ["habits", user?.uid] });
+
+    const previousHabits = queryClient.getQueryData<Habit[]>(["habits", user?.uid]);
+
+    queryClient.setQueryData<Habit[]>(["habits", user?.uid], (oldHabits = []) =>
+      oldHabits.map((habit) =>
+        habit.id === habitId
+          ? {
+              ...habit,
+              completedDates: habit.completedDates?.includes(dateISO)
+                ? habit.completedDates.filter((d) => d !== dateISO)
+                : [...(habit.completedDates || []), dateISO],
+            }
+          : habit
+      )
+    );
+
+    return { previousHabits };
+  },
+  onError: (_err, _vars, context) => {
+    if (context?.previousHabits) {
+      queryClient.setQueryData(["habits", user?.uid], context.previousHabits);
+    }
+  },
+  onSettled: () => {
+    queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
+  },
+});
+
+
   const openModal = () => { setShowModal(true);
   
   }
@@ -110,7 +151,9 @@ const DashboardPage = () => {
       >Save</button>
         </form>
       </Modal>
-      {!isLoading && <CalendarGrid habits={habits} />}
+      {!isLoading && <CalendarGrid habits={habits} onTick={(habitId, dateISO) => {
+        updateHabitMutation.mutate({ habitId, dateISO });
+      }} />}
     </section>
   );
 };
