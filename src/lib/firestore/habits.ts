@@ -3,6 +3,7 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -59,3 +60,12 @@ export const updateHabit = async (
     });
   }
 };
+
+export const deleteHabit = async (userId: string, habitId: string) => {
+  await deleteDoc(doc(db, "habits", habitId));
+}
+
+export const updateHabitDetails = async (habitId: string, updates: { name?: string; goal?: number }) => {
+  const habitRef = doc(db, "habits", habitId);
+  await updateDoc(habitRef, updates);
+}

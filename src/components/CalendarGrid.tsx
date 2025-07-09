@@ -1,20 +1,28 @@
 import { useState } from "react";
+import HabitActions from "./HabitActions";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import { format, getMonth, getYear } from "date-fns";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import type { Habit } from "../pages/DashboardPage";
 import toast from "react-hot-toast";
 
-
 interface CalendarGridProps {
   habits: Habit[];
   onTick?: (habitId: string, dateISO: string) => void;
+  onEditHabit: (habit: Habit) => void;
+  onDeleteHabit: (habit: Habit) => void;
 }
 
-const CalendarGrid = ({ habits, onTick }: CalendarGridProps) => {
+const CalendarGrid = ({
+  habits,
+  onTick,
+  onEditHabit,
+  onDeleteHabit,
+}: CalendarGridProps) => {
   const today = new Date();
   const [month, setMonth] = useState(getMonth(today));
   const [year, setYear] = useState(getYear(today));
+  const [hoveredHabitId, setHoveredHabitId] = useState<string | null>(null);
 
   const daysInMonth = getDaysInMonth(year, month);
 
@@ -114,22 +122,36 @@ const CalendarGrid = ({ habits, onTick }: CalendarGridProps) => {
                 habit.completedDates?.length || 0,
                 habit.goal
               );
-if (achieved + 1 === habit.goal) {
-  toast.success(`Congrats! You've completed your "${habit.name}" habit goal 🎯`);
-}
+              if (achieved + 1 === habit.goal) {
+                toast.success(
+                  `Congrats! You've completed your "${habit.name}" habit goal 🎯`
+                );
+              }
               return (
                 <tr key={habit.id}>
                   <td
                     colSpan={3}
-                    className="text-center border border-gray-300 sticky left-0 bg-white z-10"
+                    className="text-center border border-gray-300 left-0 bg-white relative group"
+                    onMouseEnter={() => setHoveredHabitId(habit.id)}
+                    onMouseLeave={() => setHoveredHabitId(null)}
                   >
                     {habit.name}
+                    {hoveredHabitId === habit.id && (
+                      <HabitActions
+                        
+                        onEdit={() => onEditHabit(habit)}
+                        onDelete={() => onDeleteHabit(habit)}
+                      />
+                    )}
                   </td>
                   {daysInMonth.map((date) => {
                     const dateKey = date.toISOString().split("T")[0];
                     const isCompleted = isDateCompleted(habit, date);
                     return (
-                      <td key={dateKey} className="w-5 h-5 border border-gray-300">
+                      <td
+                        key={dateKey}
+                        className="w-5 h-5 border border-gray-300"
+                      >
                         <div
                           className={`h-full w-full mx-auto cursor-pointer flex justify-center items-center 
         ${isCompleted ? "bg-green-600 text-white text-lg" : "bg-white"}`}

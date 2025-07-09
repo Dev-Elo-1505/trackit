@@ -1,32 +1,24 @@
 Tasks 
-- Build landing page (1 component)
-    -for the moving line - use stack
-    -use loom for videos
+5. Edit/Delete Habit
+Add edit/delete buttons per habit.
 
-- Dashboard
-    - modal to create new habit and goal
-    - post habits to firestore
-    - get habits from firestore
-    - store daily progress in firestore
+6. AI Features 
+Here are smart AI ideas you could add:
 
-    Create the dashboard layout
+📈 Habit Suggestion AI: Based on user habits, suggest a new one.
 
-✅ Build the "Add Habit" modal
+🧠 Motivational Feedback: If the user misses days, show encouragement messages (fine-tuned with OpenAI or mock AI).
 
-✅ Create calendar grid for a single habit
+🧭 Goal Tracking Assistant: Summarize the user’s performance over time.
 
-✅ Implement tick toggle for days
-
-✅ Hook up Firebase logic (CRUD habits & progress)
-
-✅ Show progress visually
-
-✅ Add polish & responsiveness
-
-Use soft colors for:
+7. Use soft colors for:
 
 Missed = white/gray
 
 Done = green
 
 Today = yellow outline
+
+8. Landing Page
+
+9. Correct login stuff
