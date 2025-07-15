@@ -1,7 +1,4 @@
-Tasks 
-5. Edit/Delete Habit
-Add edit/delete buttons per habit.
-
+Tasks
 6. AI Features 
 Here are smart AI ideas you could add:
 
