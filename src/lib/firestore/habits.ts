@@ -37,7 +37,7 @@ export const getHabits = async (userId: string) => {
 };
 
 export const updateHabit = async (
-  userId: string,
+  
   habitId: string,
   dateISO: string
 ) => {
@@ -61,7 +61,7 @@ export const updateHabit = async (
   }
 };
 
-export const deleteHabit = async (userId: string, habitId: string) => {
+export const deleteHabit = async ( habitId: string) => {
   await deleteDoc(doc(db, "habits", habitId));
 }
 
