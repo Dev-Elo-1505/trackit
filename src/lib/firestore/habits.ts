@@ -14,6 +14,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 
+
+
 export const createHabit = async (
   userId: string,
   habit: { name: string; goal: number }
@@ -37,12 +39,12 @@ export const getHabits = async (userId: string) => {
 };
 
 export const updateHabit = async (
-  
+  userId: string,
   habitId: string,
   dateISO: string
 ) => {
   const habitRef = doc(db, "habits", habitId);
-
+console.log(userId)
   // Check if the date already exists in completedDates
   const habitDoc = await getDoc(habitRef);
   const habitData = habitDoc.data();
@@ -61,8 +63,10 @@ export const updateHabit = async (
   }
 };
 
-export const deleteHabit = async ( habitId: string) => {
+export const deleteHabit = async (userId: string, habitId: string) => {
+  console.log(userId)
   await deleteDoc(doc(db, "habits", habitId));
+
 }
 
 export const updateHabitDetails = async (habitId: string, updates: { name?: string; goal?: number }) => {

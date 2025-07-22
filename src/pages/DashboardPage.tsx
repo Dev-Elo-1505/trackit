@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { FaPlus } from "react-icons/fa6";
 import Modal from "../components/Modal";
@@ -11,8 +11,7 @@ import {
   updateHabitDetails,
 } from "../lib/firestore/habits";
 import CalendarGrid from "../components/CalendarGrid";
-import { getHabitSuggestions, testGeminiConnection } from "../lib/ai";
-import toast from "react-hot-toast";
+
 
 export interface Habit {
   id: string;
@@ -141,57 +140,7 @@ const DashboardPage = () => {
       goal: Number(formData.goal),
     });
   };
-  console.log("Gemini API Key:", import.meta.env.VITE_GEMINI_API_KEY);
-
-  const [aiSuggestions, setAiSuggestions] = useState<string[] | null>(null);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-
-  // Add this useEffect hook
-useEffect(() => {
-  const testConnection = async () => {
-    try {
-      const data = await testGeminiConnection();
-      console.log("Gemini Connection Successful:", data);
-    } catch (error) {
-      console.error("Gemini Connection Failed:", error);
-      console.error("Gemini API connection failed. Check console for details.");
-    }
-  };
-  
-  if (user?.uid) {
-    testConnection();
-  }
-}, [user?.uid]);
-  const handleSuggestions = async () => {
-    if (!user?.uid) return;
-
-    setIsLoadingSuggestions(true);
-    try {
-      const existingHabits = habits.map((habit) => habit.name);
-      const suggestions = await getHabitSuggestions(existingHabits);
-
-      if (Array.isArray(suggestions)) {
-        setAiSuggestions(suggestions);
-      } else {
-        alert("Couldn't get suggestions. Please try again.");
-      }
-    } catch (error) {
-      alert(error);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  };
-  console.log("Gemini suggestions:", aiSuggestions);
-
-  const applySuggestion = (suggestion: string) => {
-    setFormData({
-      habit: suggestion,
-      goal: "30", // Default goal
-    });
-    setAiSuggestions(null); // Close suggestions modal
-    setShowModal(true); // Open create habit modal
-  };
-
+ 
   return (
     <section className="mt-10">
       <h1 className="font-medium text-2xl mb-5">
@@ -204,12 +153,7 @@ useEffect(() => {
         <FaPlus />
         add habit
       </button>
-      <button
-        className="btn bg-primary hover:bg-[#ffd23e] text-text flex items-center gap-1"
-        onClick={handleSuggestions}
-      >
-        need habit ideas?
-      </button>
+      
       <Modal isOpen={showModal} onClose={closeModal}>
         <h2>start tracking a new habit</h2>
         <form onSubmit={handleSubmit} className="mt-5">
@@ -249,63 +193,7 @@ useEffect(() => {
           </button>
         </form>
       </Modal>
-
-      {aiSuggestions && (
-        <Modal isOpen={true} onClose={() => setAiSuggestions(null)}>
-          <div className="p-6 max-w-md mx-auto">
-            <h2 className="text-xl font-bold mb-4">AI Habit Suggestions</h2>
-
-            {aiSuggestions.length > 0 ? (
-              <>
-                <p className="mb-4 text-gray-600">
-                  Based on your current habits, we recommend:
-                </p>
-
-                <div className="space-y-3">
-                  {aiSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center"
-                      onClick={() => {
-                        setFormData({
-                          habit: suggestion,
-                          goal: "30",
-                        });
-                        setAiSuggestions(null);
-                        setShowModal(true);
-                      }}
-                    >
-                      <div className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                        {index + 1}
-                      </div>
-                      <span className="font-medium">{suggestion}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-red-500 mb-4">
-                  No suggestions could be generated
-                </p>
-                <button
-                  className="btn bg-blue-500 text-white"
-                  onClick={handleSuggestions}
-                >
-                  Try Again
-                </button>
-              </div>
-            )}
-
-            <button
-              className="text-gray-500 hover:text-gray-700"
-              onClick={() => setAiSuggestions(null)}
-            >
-              Close
-            </button>
-          </div>
-        </Modal>
-      )}
+      
       {deleteModalHabit && (
         <Modal
           isOpen={!!deleteModalHabit}
