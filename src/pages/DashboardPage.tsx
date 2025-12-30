@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { FaPlus } from "react-icons/fa6";
 import Modal from "../components/Modal";
@@ -11,7 +11,9 @@ import {
   updateHabitDetails,
 } from "../lib/firestore/habits";
 import CalendarGrid from "../components/CalendarGrid";
-
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { habitSchema, type HabitFormData } from "../lib/schemas";
 
 export interface Habit {
   id: string;
@@ -24,18 +26,48 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editModalHabit, setEditModalHabit] = useState<Habit | null>(null);
-  const [editFormData, setEditFormData] = useState({ habit: "", goal: "" });
   const [deleteModalHabit, setDeleteModalHabit] = useState<Habit | null>(null);
 
   const queryClient = useQueryClient();
-
-  const [formData, setFormData] = useState({ habit: "", goal: "" });
   const [createError, setCreateError] = useState("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // Form for Creating Habit
+  const {
+    register: registerCreate,
+    handleSubmit: handleSubmitCreate,
+    formState: { errors: errorsCreate, isSubmitting: isCreating },
+    reset: resetCreate,
+  } = useForm({
+    resolver: zodResolver(habitSchema),
+    defaultValues: {
+      name: "",
+      goal: 0, 
+    },
+  });
+
+  // Form for Editing Habit
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: errorsEdit, isSubmitting: isEditing },
+    reset: resetEdit,
+  } = useForm({
+    resolver: zodResolver(habitSchema),
+    defaultValues: {
+      name: "",
+      goal: 0,
+    },
+  });
+
+  // Reset Edit Form when modal opens
+  useEffect(() => {
+    if (editModalHabit) {
+      resetEdit({
+        name: editModalHabit.name,
+        goal: editModalHabit.goal,
+      });
+    }
+  }, [editModalHabit, resetEdit]);
 
   // Get habits
   const { data: habits = [], isLoading } = useQuery({
@@ -54,11 +86,11 @@ const DashboardPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
       setShowModal(false);
-      setFormData({ habit: "", goal: "" });
+      resetCreate();
     },
     onError: (error) => {
       setCreateError(error.message);
-    }
+    },
   });
 
   // Update habit
@@ -135,21 +167,34 @@ const DashboardPage = () => {
 
   const openModal = () => {
     setShowModal(true);
+    resetCreate(); 
   };
   const closeModal = () => {
     setShowModal(false);
     setCreateError("");
+    resetCreate();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Creating habit with:", formData, user?.uid);
+  const onCreateSubmit = (data: HabitFormData) => {
+    // console.log("Creating habit with:", data, user?.uid);
     habitMutation.mutate({
-      name: formData.habit,
-      goal: Number(formData.goal),
+      name: data.name,
+      goal: Number(data.goal),
     });
   };
- 
+
+  const onEditSubmit = (data: HabitFormData) => {
+    if (!editModalHabit) return;
+    updateHabitDetailsMutation.mutate({
+      habitId: editModalHabit.id,
+      updates: {
+        name: data.name,
+        goal: Number(data.goal),
+      },
+    });
+    setEditModalHabit(null);
+  };
+
   return (
     <section className="mt-10">
       <h1 className="font-medium text-2xl mb-5">
@@ -162,23 +207,28 @@ const DashboardPage = () => {
         <FaPlus />
         add habit
       </button>
-      
+
       <Modal isOpen={showModal} onClose={closeModal}>
         <h2>start tracking a new habit</h2>
-        <form onSubmit={handleSubmit} className="mt-5">
+        <form onSubmit={handleSubmitCreate(onCreateSubmit)} className="mt-5">
           <div className="mt-7">
             <label htmlFor="habit" className="font-semibold">
               habit
             </label>
             <input
               type="text"
-              name="habit"
               id="habit"
-              className="border border-light rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700"
+              className={`border rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700 ${
+                errorsCreate.name ? "border-red-500" : "border-light"
+              }`}
               placeholder="e.g work out"
-              value={formData.habit}
-              onChange={handleInputChange}
+              {...registerCreate("name")}
             />
+            {errorsCreate.name && (
+              <p className="text-red-500 text-xs mt-1">
+                {errorsCreate.name.message}
+              </p>
+            )}
           </div>
           <div className="mt-7">
             <label htmlFor="goal" className="font-semibold">
@@ -186,24 +236,32 @@ const DashboardPage = () => {
             </label>
             <input
               type="number"
-              name="goal"
               id="goal"
-              className="border border-light rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700"
+              className={`border rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700 ${
+                errorsCreate.goal ? "border-red-500" : "border-light"
+              }`}
               placeholder="e.g 10"
-              value={formData.goal}
-              onChange={handleInputChange}
+              {...registerCreate("goal")}
             />
+            {errorsCreate.goal && (
+              <p className="text-red-500 text-xs mt-1">
+                {errorsCreate.goal.message}
+              </p>
+            )}
           </div>
-          {createError && <p className="text-red-500 text-sm mt-2">{createError}</p>}
+          {createError && (
+            <p className="text-red-500 text-sm mt-2">{createError}</p>
+          )}
           <button
-            className="btn bg-primary hover:bg-[#ffd23e] text-text mt-4"
+            className="btn bg-primary hover:bg-[#ffd23e] text-text mt-4 disabled:opacity-50"
             type="submit"
+            disabled={isCreating}
           >
-            Save
+            {isCreating ? "Saving..." : "Save"}
           </button>
         </form>
       </Modal>
-      
+
       {deleteModalHabit && (
         <Modal
           isOpen={!!deleteModalHabit}
@@ -243,37 +301,24 @@ const DashboardPage = () => {
           onClose={() => setEditModalHabit(null)}
         >
           <h2>Edit Habit</h2>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              updateHabitDetailsMutation.mutate({
-                habitId: editModalHabit.id,
-                updates: {
-                  name: editFormData.habit,
-                  goal: Number(editFormData.goal),
-                },
-              });
-              setEditModalHabit(null);
-            }}
-            className="mt-5"
-          >
+          <form onSubmit={handleSubmitEdit(onEditSubmit)} className="mt-5">
             <div className="mt-7">
               <label htmlFor="edit-habit" className="font-semibold">
                 Habit
               </label>
               <input
                 type="text"
-                name="habit"
                 id="edit-habit"
-                className="border border-light rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700"
-                value={editFormData.habit}
-                onChange={(e) =>
-                  setEditFormData((prev) => ({
-                    ...prev,
-                    habit: e.target.value,
-                  }))
-                }
+                className={`border rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700 ${
+                  errorsEdit.name ? "border-red-500" : "border-light"
+                }`}
+                {...registerEdit("name")}
               />
+              {errorsEdit.name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errorsEdit.name.message}
+                </p>
+              )}
             </div>
             <div className="mt-7">
               <label htmlFor="edit-goal" className="font-semibold">
@@ -281,21 +326,24 @@ const DashboardPage = () => {
               </label>
               <input
                 type="number"
-                name="goal"
                 id="edit-goal"
-                className="border border-light rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700"
-                value={editFormData.goal}
-                onChange={(e) =>
-                  setEditFormData((prev) => ({ ...prev, goal: e.target.value }))
-                }
+                className={`border rounded w-full px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gray-700 ${
+                  errorsEdit.goal ? "border-red-500" : "border-light"
+                }`}
+                {...registerEdit("goal")}
               />
+              {errorsEdit.goal && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errorsEdit.goal.message}
+                </p>
+              )}
             </div>
             <button
               className="btn bg-primary hover:bg-[#ffd23e] text-text mt-4 disabled:opacity-50"
               type="submit"
-              disabled={updateHabitDetailsMutation.isPending}
+              disabled={isEditing || updateHabitDetailsMutation.isPending}
             >
-              {updateHabitDetailsMutation.isPending
+              {isEditing || updateHabitDetailsMutation.isPending
                 ? "Updating..."
                 : "Update Habit"}
             </button>
@@ -310,10 +358,6 @@ const DashboardPage = () => {
           }}
           onEditHabit={(habit) => {
             setEditModalHabit(habit);
-            setEditFormData({
-              habit: habit.name,
-              goal: habit.goal.toString(),
-            });
           }}
           onDeleteHabit={(habit) => setDeleteModalHabit(habit)}
         />
