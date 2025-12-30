@@ -12,7 +12,7 @@ const HomePage = () => {
         <Features />
         <Testimonials />
         <div className="h-96 flex justify-center items-center flex-col">
-          <h3 className="font-bold text-5xl mb-4">get started for free</h3>
+          <h3 className="font-bold text-5xl mb-4 text-center">get started for free</h3>
           <p></p>
           <Link to="/auth/signup">
           <button className="mb-4 bg-primary hover:bg-[#ffd23e] mt-2 w-40 h-12 text-lg font-semibold rounded-lg transition-colors duration-300 cursor-pointer">try trackit free</button></Link>

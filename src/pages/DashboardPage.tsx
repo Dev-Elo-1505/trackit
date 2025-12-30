@@ -30,6 +30,7 @@ const DashboardPage = () => {
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({ habit: "", goal: "" });
+  const [createError, setCreateError] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,11 +50,15 @@ const DashboardPage = () => {
       if (!user?.uid) throw new Error("User not authenticated");
       return createHabit(user.uid, newHabit);
     },
+    onMutate: () => setCreateError(""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
       setShowModal(false);
       setFormData({ habit: "", goal: "" });
     },
+    onError: (error) => {
+      setCreateError(error.message);
+    }
   });
 
   // Update habit
@@ -131,10 +136,14 @@ const DashboardPage = () => {
   const openModal = () => {
     setShowModal(true);
   };
-  const closeModal = () => setShowModal(false);
+  const closeModal = () => {
+    setShowModal(false);
+    setCreateError("");
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Creating habit with:", formData, user?.uid);
     habitMutation.mutate({
       name: formData.habit,
       goal: Number(formData.goal),
@@ -144,7 +153,7 @@ const DashboardPage = () => {
   return (
     <section className="mt-10">
       <h1 className="font-medium text-2xl mb-5">
-        welcome, {user?.displayName} !
+        welcome, {user?.displayName?.toLowerCase() || "there"}!
       </h1>
       <button
         className="btn bg-primary hover:bg-[#ffd23e] text-text flex items-center gap-1"
@@ -185,6 +194,7 @@ const DashboardPage = () => {
               onChange={handleInputChange}
             />
           </div>
+          {createError && <p className="text-red-500 text-sm mt-2">{createError}</p>}
           <button
             className="btn bg-primary hover:bg-[#ffd23e] text-text mt-4"
             type="submit"

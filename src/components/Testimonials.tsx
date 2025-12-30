@@ -18,7 +18,13 @@ const testimonials = [
         id: 4,
         desc: "trackit helps me stay on top of my day..",
         name: "belledasha"
-    }
+    },
+    {
+        id: 5,
+        desc: "trackit def helps with my country work lol, iykyk..",
+        name: "olandria"
+    },
+
 ]
 
 const Testimonials = () => {

@@ -42,6 +42,8 @@ const AuthPage = () => {
     } catch (error) {
       setErrorMsg((error as Error).message);
       
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,7 +122,7 @@ const AuthPage = () => {
             )}
           </p>
           {errorMsg && (
-            <p className="text-red-500 text-sm text-center mt-2">an error occured. please try again.</p>
+            <p className="text-red-500 text-sm text-center mt-2">{errorMsg}</p>
           )}
           <div className="flex items-center my-4">
             <hr className="flex-grow border-t border-gray-300" />
@@ -130,6 +132,7 @@ const AuthPage = () => {
           <button
             className="border w-full rounded px-2.5 py-2 font-semibold mt-4 mb-4 flex justify-center cursor-pointer"
             onClick={handleGoogleAuth}
+            type="button"
           >
             <img src={google} alt="google" className="w-5 h-5" />
           </button>
