@@ -20,7 +20,6 @@ const AiCoach = ({ userName, habits }: AiCoachProps) => {
     setInsight(null);
     setIsOpen(true);
     try {
-      // Using local smart engine (no API key required)
       const result = await generateSmartInsights(userName, habits);
       setInsight(result);
     } catch (error) {
@@ -40,7 +39,7 @@ const AiCoach = ({ userName, habits }: AiCoachProps) => {
         title="Get AI Insights"
       >
         <FaRobot className="text-xl" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-semibold">
+        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-medium">
           get smart insights
         </span>
       </button>

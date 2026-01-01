@@ -1,6 +1,3 @@
-// This purely local 'AI' analyzes user data to give personalized feedback.
-// It ensures 100% uptime and 0 cost.
-
 const TIPS_BEGINNER = [
   "Start small! Consistency is more important than intensity.",
   "Don't break the chain! Try to get at least one checkmark today.",
@@ -38,14 +35,12 @@ export const generateSmartInsights = async (
   userName: string,
   habits: { name: string; goal: number; completedDates?: string[] }[]
 ): Promise<string> => {
-  // Simulate AI "thinking" time for better UX
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   if (habits.length === 0) {
     return `Hey ${userName}! 👋\n\nI see you haven't started tracking any habits yet.\n\nTip: Start with one simple habit today. Even drinking a glass of water counts!\n\n"${QUOTES[0]}"`;
   }
 
-  // 1. Analyze Data
   let totalCompleted = 0;
   let totalGoal = 0;
   let bestHabit = habits[0];
@@ -73,7 +68,7 @@ export const generateSmartInsights = async (
 
   const overallProgress = totalGoal > 0 ? (totalCompleted / totalGoal) : 0;
 
-  // 2. Determine User State & Select Content
+
   let summary = "";
   let tip = "";
 
