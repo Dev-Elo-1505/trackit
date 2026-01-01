@@ -21,9 +21,8 @@ const features = [
         desc: "one-click and done. log your wins without jumping through hoops."
     },
     {
-        id: 5,
-        title: "ai-powered nudges",
-        desc: "gentle, personalized reminders from your ai accountability buddy — not your mom."
+        title: "smart coach insights",
+        desc: "data-driven motivation and personalized tips to keep you on track."
     },
     {
         id: 6,

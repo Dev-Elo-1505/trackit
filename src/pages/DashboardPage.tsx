@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { habitSchema, type HabitFormData } from "../lib/schemas";
 import { toast } from "sonner";
 import { mapAuthError } from "../utils/errorMapping";
+import AiCoach from "../components/AiCoach";
 
 export interface Habit {
   id: string;
@@ -387,6 +388,8 @@ const DashboardPage = () => {
           onDeleteHabit={(habit) => setDeleteModalHabit(habit)}
         />
       )}
+      
+      <AiCoach userName={user?.displayName || "Friend"} habits={habits} />
     </section>
   );
 };

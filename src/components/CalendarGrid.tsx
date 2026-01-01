@@ -3,7 +3,7 @@ import HabitActions from "./HabitActions";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import { format, getMonth, getYear } from "date-fns";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
-import { toast } from "sonner";
+
 import type { Habit } from "../pages/DashboardPage";
 
 
@@ -125,11 +125,6 @@ const CalendarGrid = ({
               );
 
 
-              if (achieved + 1 === habit.goal) {
-                toast.success(
-                  `congrats! you've completed your "${habit.name}" habit goal 🎯`
-                );
-              }
               return (
                 <tr key={habit.id}>
                   <td
