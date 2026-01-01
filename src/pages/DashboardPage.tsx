@@ -14,6 +14,8 @@ import CalendarGrid from "../components/CalendarGrid";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { habitSchema, type HabitFormData } from "../lib/schemas";
+import { toast } from "sonner";
+import { mapAuthError } from "../utils/errorMapping";
 
 export interface Habit {
   id: string;
@@ -29,7 +31,6 @@ const DashboardPage = () => {
   const [deleteModalHabit, setDeleteModalHabit] = useState<Habit | null>(null);
 
   const queryClient = useQueryClient();
-  const [createError, setCreateError] = useState("");
 
   // Form for Creating Habit
   const {
@@ -41,7 +42,7 @@ const DashboardPage = () => {
     resolver: zodResolver(habitSchema),
     defaultValues: {
       name: "",
-      goal: 0, 
+      goal: 0,
     },
   });
 
@@ -82,14 +83,17 @@ const DashboardPage = () => {
       if (!user?.uid) throw new Error("User not authenticated");
       return createHabit(user.uid, newHabit);
     },
-    onMutate: () => setCreateError(""),
+    onMutate: () => {
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
       setShowModal(false);
       resetCreate();
+      toast.success("habit created successfully");
     },
     onError: (error) => {
-      setCreateError(error.message);
+      const message = mapAuthError((error as any).code) || error.message;
+      toast.error(message);
     },
   });
 
@@ -113,18 +117,33 @@ const DashboardPage = () => {
         user?.uid,
       ]);
 
+
+      // Check for goal completion (Optimistic)
+      const habit = previousHabits?.find((h) => h.id === habitId);
+      if (habit) {
+        const isCompletedAlready = habit.completedDates?.includes(dateISO);
+        if (!isCompletedAlready) {
+          const currentCount = habit.completedDates?.length || 0;
+          if (currentCount + 1 === habit.goal) {
+            toast.success(
+              `congrats! you've completed your "${habit.name}" habit goal 🎯`
+            );
+          }
+        }
+      }
+
       queryClient.setQueryData<Habit[]>(
         ["habits", user?.uid],
         (oldHabits = []) =>
-          oldHabits.map((habit) =>
-            habit.id === habitId
+          oldHabits.map((h) =>
+            h.id === habitId
               ? {
-                  ...habit,
-                  completedDates: habit.completedDates?.includes(dateISO)
-                    ? habit.completedDates.filter((d) => d !== dateISO)
-                    : [...(habit.completedDates || []), dateISO],
+                  ...h,
+                  completedDates: h.completedDates?.includes(dateISO)
+                    ? h.completedDates.filter((d) => d !== dateISO)
+                    : [...(h.completedDates || []), dateISO],
                 }
-              : habit
+              : h
           )
       );
 
@@ -134,6 +153,7 @@ const DashboardPage = () => {
       if (context?.previousHabits) {
         queryClient.setQueryData(["habits", user?.uid], context.previousHabits);
       }
+       toast.error("failed to update habit status");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
@@ -147,7 +167,11 @@ const DashboardPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
+      toast.success("habit deleted successfully");
     },
+    onError: () => {
+        toast.error("failed to delete habit");
+    }
   });
 
   const updateHabitDetailsMutation = useMutation({
@@ -162,7 +186,11 @@ const DashboardPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits", user?.uid] });
+      toast.success("habit updated successfully");
     },
+    onError: () => {
+       toast.error("failed to update habit details"); 
+    }
   });
 
   const openModal = () => {
@@ -171,7 +199,6 @@ const DashboardPage = () => {
   };
   const closeModal = () => {
     setShowModal(false);
-    setCreateError("");
     resetCreate();
   };
 
@@ -249,9 +276,7 @@ const DashboardPage = () => {
               </p>
             )}
           </div>
-          {createError && (
-            <p className="text-red-500 text-sm mt-2">{createError}</p>
-          )}
+{/* Error message handling replaced by Sonner toast */}
           <button
             className="btn bg-primary hover:bg-[#ffd23e] text-text mt-4 disabled:opacity-50"
             type="submit"

@@ -3,8 +3,9 @@ import HabitActions from "./HabitActions";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import { format, getMonth, getYear } from "date-fns";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { toast } from "sonner";
 import type { Habit } from "../pages/DashboardPage";
-import toast from "react-hot-toast";
+
 
 interface CalendarGridProps {
   habits: Habit[];
@@ -122,9 +123,11 @@ const CalendarGrid = ({
                 habit.completedDates?.length || 0,
                 habit.goal
               );
+
+
               if (achieved + 1 === habit.goal) {
                 toast.success(
-                  `Congrats! You've completed your "${habit.name}" habit goal 🎯`
+                  `congrats! you've completed your "${habit.name}" habit goal 🎯`
                 );
               }
               return (

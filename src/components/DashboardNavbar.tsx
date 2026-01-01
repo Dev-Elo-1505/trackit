@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
 const DashboardNavBar = () => {
   const { logout } = useAuth();
@@ -7,7 +8,8 @@ const DashboardNavBar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    toast.success("logged out successfully");
+    navigate("/auth/login");
   };
 
   return (

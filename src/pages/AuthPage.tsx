@@ -7,6 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { authSchema, type AuthFormData } from "../lib/schemas";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+import { toast } from "sonner";
+import { mapAuthError } from "../utils/errorMapping";
+
 const AuthPage = () => {
   const {
     register,
@@ -16,7 +19,6 @@ const AuthPage = () => {
     resolver: zodResolver(authSchema),
   });
 
-  const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const { type } = useParams();
@@ -32,25 +34,35 @@ const AuthPage = () => {
   }, [type, navigate]);
 
   const onSubmit = async (data: AuthFormData) => {
-    setErrorMsg("");
+    const loadingToast = toast.loading(isLogin ? "logging in..." : "creating account...");
     try {
       if (isLogin) {
         await login(data.email, data.password);
+        toast.success("welcome back!");
       } else {
         await signup(data.email, data.password);
+        toast.success("account created successfully");
       }
+      toast.dismiss(loadingToast);
       navigate("/dashboard");
     } catch (error) {
-      setErrorMsg((error as Error).message);
+       toast.dismiss(loadingToast);
+       const message = mapAuthError((error as any).code);
+       toast.error(message);
     }
   };
 
   const handleGoogleAuth = async () => {
+    const loadingToast = toast.loading("connecting to google...");
     try {
       await signInWithGoogle();
+      toast.dismiss(loadingToast);
+      toast.success("welcome back!");
       navigate("/dashboard");
     } catch (error) {
-      setErrorMsg((error as Error).message);
+      toast.dismiss(loadingToast);
+      const message = mapAuthError((error as any).code);
+      toast.error(message);
     }
   };
 
@@ -143,9 +155,7 @@ const AuthPage = () => {
               </>
             )}
           </p>
-          {errorMsg && (
-            <p className="text-red-500 text-sm text-center mt-2">{errorMsg}</p>
-          )}
+{/* Error message handling replaced by Sonner toast */}
           <div className="flex items-center my-4">
             <hr className="flex-grow border-t border-gray-300" />
             <span className="text-sm px-2 text-gray-600">or</span>
